@@ -16,8 +16,8 @@ Memory Tagging Extension (MTE) is a hardware security feature that detects memor
 
 ```bash
 # Clone repository
-git clone https://github.com/YOUR_USERNAME/riscv-mte-toolchain.git
-cd riscv-mte-toolchain
+git clone https://github.com/EECS6894/RISCV-MTE.git
+cd RISCV-MTE
 
 # Install dependencies
 ./scripts/setup-environment.sh
