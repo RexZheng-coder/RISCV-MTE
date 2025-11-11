@@ -121,7 +121,7 @@ See [Testing Guide](docs/Testing.md) for details.
 ## Resources
 
 - [RISC-V MTE Whitepaper](references/RISC-V-MTE-Whitepaper.pdf)
-- [Vrull Implementation](https://github.com/vrull-gmbh)
+- [Vrull Implementation](https://gitlab.com/vrull-public)
 - [RISC-V Official Site](https://riscv.org/)
 
 ## Team
