@@ -33,4 +33,3 @@ export GLIBC_TUNABLES=glibc.mem.tagging=1
 - **Tag Checking**: `free()` checks if the pointer tag matches the memory tag.
 - **Tag Propagation**: `realloc()` preserves or updates tags correctly.
 
-See [Installation Guide](https://www.google.com/search?q=../Installation.md%23step-5-build-glibc) for build details.

@@ -62,4 +62,3 @@ export ZIMTE_DEBUG=1
 qemu-riscv64 ./program
 ```
 
-See [Testing Guide](https://www.google.com/search?q=../Testing.md) for comprehensive usage examples.

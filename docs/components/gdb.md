@@ -44,5 +44,3 @@ You can use the modified assembler to write inline assembly for MTE:
 ```
 asm volatile("gentag %0, %1" : "=r"(tagged_ptr) : "r"(ptr));
 ```
-
-See [Installation Guide](https://www.google.com/search?q=../Installation.md%23verification) for details.
