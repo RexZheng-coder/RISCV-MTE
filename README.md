@@ -1,34 +1,33 @@
 # RISC-V Memory Tagging Extension Software Toolchain
 
-A complete cross-compilation toolchain for RISC-V with Memory Tagging Extension (MTE) support, based on Vrull GmbH's implementation with comprehensive documentation and automation.
+A complete cross-compilation toolchain and benchmarking suite for RISC-V with Memory Tagging Extension (MTE) support. This project integrates industry-standard components (GCC, glibc, QEMU, LLVM Scudo) to enable hardware-assisted memory safety research on RISC-V.
 
 ## Overview
 
-Memory Tagging Extension (MTE) is a hardware security feature that detects memory safety vulnerabilities. This project provides:
+Memory Tagging Extension (MTE) is a hardware security feature that detects memory safety vulnerabilities (like buffer overflows and use-after-free) with low overhead. This project provides a fully integrated environment including:
 
-- **GDB** with MTE debugging support (Complete)
-- **glibc** with MTE-aware memory allocation (Complete)
-- **QEMU** user mode with MTE emulation (Complete)
-- **GCC Bootstrap** for cross-compilation (Complete)
-- **GCC Full** (In Progress)
+- **GCC Toolchain**: Full cross-compilation support (GCC 14.2, Binutils 2.43) patched for Zimte instructions (`gentag`, `settag`, etc.).
+- **QEMU User Mode**: Patched emulator with full Zimte logic support, custom shadow memory implementation, and fixes for syscall compatibility (e.g., handling tagged pointers in `write`).
+- **glibc MTE**: Standard C library configured for automatic heap tagging.
+- **LLVM Scudo**: A hardened memory allocator ported to RISC-V Zimte, enabling fine-grained memory safety with dynamic MTE toggling.
+- **CoreMark Benchmark**: Integrated performance testing suite to quantify MTE hardware overhead.
 
 ## Quick Start
 
 ```bash
 # Clone repository
-git clone https://github.com/EECS6894/RISCV-MTE.git
+git clone [https://github.com/EECS6894/RISCV-MTE.git](https://github.com/EECS6894/RISCV-MTE.git)
 cd RISCV-MTE
 
 # Install dependencies
 ./scripts/setup-environment.sh
 
-# Build all components
+# Build generic toolchain (GCC, Glibc, QEMU)
 ./scripts/build-all.sh
 
-# Run tests
+# Run validation tests
 ./scripts/run-all-tests.sh
 ```
-
 ## Prerequisites
 
 - **OS**: Ubuntu 22.04/24.04 LTS
@@ -47,67 +46,30 @@ cd RISCV-MTE
 | [QEMU Guide](docs/components/qemu.md) | QEMU build and usage |
 | [GCC Bootstrap Guide](docs/components/gcc-bootstrap.md) | GCC Bootstrap build |
 | [GCC Guide](docs/components/gcc.md) | GCC Full build |
-
+|[Scudo Guide](LLVM_SCUDO_MTE/README.md)| LLVM Scudo allocator build and usage|
 
 ## Project Status
 
-| Component | Status | Documentation |
-|-----------|--------|---------------|
-| GDB | Complete | [Guide](docs/components/gdb.md) |
-| glibc | Complete | [Guide](docs/components/glibc.md) |
-| QEMU | Complete | [Guide](docs/components/qemu.md) |
-| GCC Bootstrap | Complete | [Guide](docs/components/gcc-bootstrap.md) |
-| GCC Full | Complete | [Guide](docs/components/gcc.md) |
+| Component      | Status       | Notes                                  |
+| -------------- | ------------ | -------------------------------------- |
+| GDB            | Complete     | MTE debugging supported                |
+| glibc          | Complete     | MTE-aware `malloc`/`free`              |
+| QEMU           | Complete     | Includes syscall fixes & debug logging |
+| GCC Full       | Complete     | Version 14.2.0                         |
+| LLVM Scudo | Complete | Ported to RISC-V Zimte     |
+| CoreMark       | Complete     | Benchmarking suite integrated          |
 
+## Performance Benchmarks
 
-## Project Structure
+We evaluated the overhead of the RISC-V Zimte extension using the CoreMark benchmark in QEMU user-mode emulation.
 
-```
-RISCV-MTE/
-├── docs/                              # Documentation
-│   ├── Installation.md                # Build and install guide
-│   ├── README.md                      # This file
-│   └── Testing.md                     # Testing guide
-│   └── components/
-│       ├── gdb.md
-│       ├── glibc.md
-│       ├── qemu.md
-│       ├── gcc-bootstrap.md
-│       └── gcc.md
-│
-├── README.md                          # Project overview
-├── LICENSE 
-├── .gitignore 
-│
-├── scripts/                           # Build and test scripts
-│   ├── build-all.sh                   # Build entire toolchain
-│   ├── build-binutils.sh              # Build Binutils 2.43
-│   ├── build-gcc-bootstrap.sh         # Build GCC stage 1
-│   ├── build-gcc-final.sh             # Build GCC stage 2 (14.2.0)
-│   ├── build-glibc.sh                 # Build Glibc 2.40 with MTE
-│   ├── clean.sh                       # Clean build artifacts
-│   ├── install-kernel-headers.sh      # Install Linux 6.11 headers
-│   ├── run-all-tests.sh               # Run complete test suite
-│   ├── setup-environment.sh           # Setup environment variables
-│   └── verify-installation.sh         # Verify toolchain installation
-│
-└── tests/                             # Test files
-    └── sources/                       # Test source code
-        ├── assembly_test.c            # Assembly generation test
-        ├── cpp_basic.cpp              # Basic C++ test
-        ├── hello.c                    # Basic C test
-        ├── main.c                     # Multi-file test (main)
-        ├── math_utils.c               # Multi-file test (utils)
-        ├── math_utils.h               # Multi-file test (header)
-        ├── mte_test.c                 # MTE features test
-        ├── mylib.c                    # Static library test (lib)
-        ├── mylib.h                    # Static library test (header)
-        ├── optimization_test.c        # Optimization levels test
-        ├── preprocessor_test.c        # Preprocessor test
-        ├── stdlib_test.c              # C standard library test
-        ├── stl_test.cpp               # C++ STL test
-        └── test_lib.c                 # Static library test (main)
-```
+| Allocator           | MTE State | Iterations/Sec | Overhead         |
+| :------------------ | :-------- | :------------- | :--------------- |
+| **Glibc (Default)** | **OFF**   | **498.88**     | **- (Baseline)** |
+| **Glibc**           | **ON**    | **424.12**     | **14.98%**       |
+| **Scudo**           | **ON**    | **410.90**     | **17.63%**       |
+
+> **Key Finding**: Hardware MTE introduces a modest **\~17% overhead** in emulation, which is significantly lower than software-based sanitizers (like ASan, typically \>100% overhead), validating the efficiency of the architecture.
 
 ## Resources
 
