@@ -2,23 +2,35 @@
 
 ## Overview
 
-GNU C Library with RISC-V MTE support.
+GNU C Library with **RISC-V MTE (Zimte) support** for heap memory tagging.
+
+## Source Code & Modifications
+
+- **Repository**: [RexZheng-coder/glibc](https://gitlab.com/RexZheng-coder/glibc)
+- **Modifications**:
+  - Implemented `malloc`/`free` hooks to utilize Zimte instructions.
+  - Added support for `GLIBC_TUNABLES=glibc.mem.tagging=1` on RISC-V architecture.
+  - Patched memory allocator to tag heap chunks when enabled.
 
 ## Build Information
 
 - **Build Script**: `scripts/build-glibc.sh`
 - **Installation**: `/opt/riscv/sysroot/`
-- **Configuration**: `--enable-memory-tagging`
+- **Configuration**: Compiled with `--enable-memory-tagging`
 
-## Official Documentation
+## Usage (Enabling MTE)
 
-- [glibc Official Manual](https://www.gnu.org/software/libc/manual/)
-- [glibc GitHub Repository](https://github.com/bminor/glibc)
+MTE is disabled by default in Glibc. You must enable it via environment variables when running your program:
 
+```bash
+# Enable Heap Tagging
+export GLIBC_TUNABLES=glibc.mem.tagging=1
+./your_program
+```
 ## MTE Features
 
-- Automatic heap tagging in `malloc()`
-- Tag checking in `free()`
-- Tag propagation in `realloc()`
+- **Automatic Tagging**: `malloc()` returns tagged pointers.
+- **Tag Checking**: `free()` checks if the pointer tag matches the memory tag.
+- **Tag Propagation**: `realloc()` preserves or updates tags correctly.
 
-See [Installation Guide](../Installation.md#step-5-build-glibc) for build details.
+See [Installation Guide](https://www.google.com/search?q=../Installation.md%23step-5-build-glibc) for build details.

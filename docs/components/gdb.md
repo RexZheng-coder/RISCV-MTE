@@ -1,32 +1,48 @@
-# GDB Documentation
+# GDB & Binutils Documentation
 
 ## Overview
 
-GDB (GNU Debugger) with RISC-V MTE support.
+GDB (GNU Debugger) and Binutils (Assembler/Linker) with **RISC-V Zimte instruction support**.
+
+## Source Code & Modifications
+
+- **Repository**: [RexZheng-coder/binutils-gdb](https://gitlab.com/RexZheng-coder/binutils-gdb)
+- **Modifications**:
+  - **Assembler (`gas`)**: Added opcode support for Zimte instructions: `gentag`, `settag`, `addtag`, etc.
+  - **Debugger (`gdb`)**: Added support for inspecting MTE-tagged memory addresses.
 
 ## Build Information
 
-- **Version**: From riscv-gnu-toolchain
-- **Build Script**: Included in `scripts/build-all.sh`
-- **Installation**: `/opt/riscv/bin/riscv64-unknown-linux-gnu-gdb`
+- **Version**: Custom RISC-V Branch
+- **Build Script**: Included in `scripts/build-binutils.sh` (or `build-all.sh`)
+- **Installation**: 
+  - GDB: `/opt/riscv/bin/riscv64-unknown-linux-gnu-gdb`
+  - AS: `/opt/riscv/bin/riscv64-unknown-linux-gnu-as`
+  - LD: `/opt/riscv/bin/riscv64-unknown-linux-gnu-ld`
 
 ## Official Documentation
 
 - [GDB Official Manual](https://sourceware.org/gdb/documentation/)
-- [GDB GitHub Repository](https://github.com/bminor/binutils-gdb)
 
 ## Quick Start
 
 ```bash
-# Basic usage
+# Debugging a program
 riscv64-unknown-linux-gnu-gdb ./program
 
-# With QEMU
+# Remote debugging with QEMU
 qemu-riscv64 -g 1234 ./program &
 riscv64-unknown-linux-gnu-gdb ./program
 (gdb) target remote :1234
 ```
 
+
 ## MTE Features
 
-GDB supports debugging MTE-tagged memory. See [Installation Guide](../Installation.md#verification) for details.
+You can use the modified assembler to write inline assembly for MTE:
+
+```
+asm volatile("gentag %0, %1" : "=r"(tagged_ptr) : "r"(ptr));
+```
+
+See [Installation Guide](https://www.google.com/search?q=../Installation.md%23verification) for details.
