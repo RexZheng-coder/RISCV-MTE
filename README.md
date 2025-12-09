@@ -83,7 +83,7 @@ We evaluated the overhead of the RISC-V Zimte extension using the CoreMark bench
 **Institution**: Columbia University
 
 
-- [Haohui Zheng] - [hz3078@columbia.edu]
+- [Haohui Zheng] - [hz3078@columbia.edu] - project maintainer
 - [Weihao Zhou] - [wz2750@columbia.edu]
 - [Rui Li] - [rl3586@columbia.edu]
 - [Charlotte Chen] - [hc3558@columbia.edu]
