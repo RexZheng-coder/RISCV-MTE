@@ -65,8 +65,8 @@ For most users, the automated build script is the easiest way:
 
 ```bash
 # Clone the repository
-git clone https://github.com/YOUR_USERNAME/riscv-mte-toolchain.git
-cd riscv-mte-toolchain
+git clone https://github.com/EECS6894/RISCV-MTE.git
+cd RISCV-MTE
 
 # Run the automated build script (builds all 5 stages)
 ./scripts/build-all.sh
@@ -598,7 +598,7 @@ file test_cpp
 Run comprehensive tests covering all toolchain features:
 
 ```bash
-./scripts/run-tests.sh
+./scripts/run-all-tests.sh
 ```
 
 **Tests included**:
@@ -724,15 +724,15 @@ less logs/binutils-build.log
 If you encounter issues not covered here:
 
 1. **Check Documentation**:
-   - [Troubleshooting Guide](troubleshooting.md)
-   - [FAQ](faq.md)
+   - [Documentation Index](README.md)
+   - [Testing Guide](Testing.md)
    - Component-specific guides in [components/](components/)
 
 2. **Review Logs**: Check `logs/` directory for detailed error messages
 
-3. **GitHub Issues**: Search or create an issue at [repository URL]
+3. **GitHub Issues**: Search or create an issue in the course project repository
 
-4. **Contact**: Email your.email@columbia.edu
+4. **Contact**: Reach out to the project maintainer listed in the root README
 
 ---
 
@@ -742,10 +742,10 @@ If you encounter issues not covered here:
 Deep dive into each component:
 - [GCC Guide](components/gcc.md) - Compiler options and features
 - [Glibc Guide](components/glibc.md) - C library and MTE support
-- [Binutils Guide](components/binutils.md) - Assembler and linker usage
+- [GDB and Binutils Guide](components/gdb.md) - Assembler, linker, and debugger usage
 
 ### 2. Testing
-[docs/testing.md](Testing.md) - How to test your programs
+[Testing Guide](Testing.md) - How to test your programs
 
 ---
 

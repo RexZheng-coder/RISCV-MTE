@@ -6,7 +6,7 @@ QEMU user-mode emulation updated with **full RISC-V Zimte (MTE) Extension suppor
 
 ## Source Code & Modifications
 
-- **Repository**: [RexZheng-coder/qemu](https://gitlab.com/RexZheng-coder/qemu)
+- **Repository**: project/patched QEMU source used by the build environment
 - **Modifications**:
   1.  **Zimte Logic**: Implemented `Zimop`, `Ssnpm`, and `Zimte` extensions.
   2.  **Shadow Memory**: Implemented software-based shadow memory for storing 4-bit tags.
@@ -22,11 +22,11 @@ QEMU user-mode emulation updated with **full RISC-V Zimte (MTE) Extension suppor
   ```bash
   cd qemu
   mkdir build && cd build
-  ../configure --target-list=riscv64-linux-user --prefix=/opt/riscv --disable-werror
+  ../configure --target-list=riscv64-linux-user --prefix="$PREFIX" --disable-werror
   make -j$(nproc)
   make install
   ```
-- **Installation**: `/opt/riscv/bin/qemu-riscv64`
+- **Installation**: `$PREFIX/bin/qemu-riscv64` after `source env.sh`
 
 ## Quick Start
 
@@ -61,4 +61,3 @@ If you need to see QEMU's internal tag check logs (e.g., `helper_settag`, `riscv
 export ZIMTE_DEBUG=1
 qemu-riscv64 ./program
 ```
-

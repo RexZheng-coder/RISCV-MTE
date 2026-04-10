@@ -6,7 +6,7 @@ GNU C Library with **RISC-V MTE (Zimte) support** for heap memory tagging.
 
 ## Source Code & Modifications
 
-- **Repository**: [RexZheng-coder/glibc](https://gitlab.com/RexZheng-coder/glibc)
+- **Repository**: [vrull-public/glibc](https://gitlab.com/vrull-public/glibc), `riscv-mte` branch
 - **Modifications**:
   - Implemented `malloc`/`free` hooks to utilize Zimte instructions.
   - Added support for `GLIBC_TUNABLES=glibc.mem.tagging=1` on RISC-V architecture.
@@ -15,7 +15,7 @@ GNU C Library with **RISC-V MTE (Zimte) support** for heap memory tagging.
 ## Build Information
 
 - **Build Script**: `scripts/build-glibc.sh`
-- **Installation**: `/opt/riscv/sysroot/`
+- **Installation**: `$PREFIX/$TARGET/` after `source env.sh`
 - **Configuration**: Compiled with `--enable-memory-tagging`
 
 ## Usage (Enabling MTE)
@@ -32,4 +32,3 @@ export GLIBC_TUNABLES=glibc.mem.tagging=1
 - **Automatic Tagging**: `malloc()` returns tagged pointers.
 - **Tag Checking**: `free()` checks if the pointer tag matches the memory tag.
 - **Tag Propagation**: `realloc()` preserves or updates tags correctly.
-

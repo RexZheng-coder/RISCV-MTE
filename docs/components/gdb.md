@@ -6,7 +6,7 @@ GDB (GNU Debugger) and Binutils (Assembler/Linker) with **RISC-V Zimte instructi
 
 ## Source Code & Modifications
 
-- **Repository**: [RexZheng-coder/binutils-gdb](https://gitlab.com/RexZheng-coder/binutils-gdb)
+- **Repository**: [vrull-public/binutils-gdb](https://gitlab.com/vrull-public/binutils-gdb), `riscv-mte` branch
 - **Modifications**:
   - **Assembler (`gas`)**: Added opcode support for Zimte instructions: `gentag`, `settag`, `addtag`, etc.
   - **Debugger (`gdb`)**: Added support for inspecting MTE-tagged memory addresses.
@@ -15,10 +15,10 @@ GDB (GNU Debugger) and Binutils (Assembler/Linker) with **RISC-V Zimte instructi
 
 - **Version**: Custom RISC-V Branch
 - **Build Script**: Included in `scripts/build-binutils.sh` (or `build-all.sh`)
-- **Installation**: 
-  - GDB: `/opt/riscv/bin/riscv64-unknown-linux-gnu-gdb`
-  - AS: `/opt/riscv/bin/riscv64-unknown-linux-gnu-as`
-  - LD: `/opt/riscv/bin/riscv64-unknown-linux-gnu-ld`
+- **Installation**:
+  - GDB: `$PREFIX/bin/riscv64-unknown-linux-gnu-gdb`
+  - AS: `$PREFIX/bin/riscv64-unknown-linux-gnu-as`
+  - LD: `$PREFIX/bin/riscv64-unknown-linux-gnu-ld`
 
 ## Official Documentation
 
