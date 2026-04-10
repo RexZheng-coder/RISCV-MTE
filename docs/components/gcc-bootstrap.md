@@ -2,7 +2,7 @@
 
 ## Overview
 
-GCC Bootstrap compiler (Stage 1) - minimal C-only compiler for building glibc.
+GCC Bootstrap compiler (Stage 2) - minimal C-only compiler for building glibc.
 
 ## Build Information
 

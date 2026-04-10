@@ -1,115 +1,103 @@
-# Scudo Hardened Allocator for RISC-V Zimte (MTE)
+# Scudo for RISC-V Zimte MTE
 
-## Overview
+This directory contains the project version of LLVM's standalone Scudo allocator, adapted for the RISC-V Zimte memory-tagging experiment. It is the allocator-side companion to the patched toolchain and QEMU stack documented at the repository root.
 
-This directory contains a modified version of the **LLVM Scudo Standalone Allocator**, ported to support the **RISC-V Zimte (Zimop + Ssnpm + Zimte)** hardware extension for Memory Tagging Extension (MTE).
+The purpose of this port is to evaluate whether Scudo's MTE abstraction can be mapped onto RISC-V Zimte-style tagging so heap allocations can receive tags, tag metadata can be written through the target instructions, and runtime overhead can be compared with the glibc heap-tagging path.
 
-This implementation allows Scudo to utilize RISC-V hardware instructions (such as `gentag`, `settag`) to provide fine-grained memory safety, detecting Heap Buffer Overflows and Use-After-Free vulnerabilities with low overhead.
+## What Changed
 
-## Key Modifications
+| Area | Files | Role |
+| --- | --- | --- |
+| Zimte tag operations | `memtag_zimte.h`, `memtag.h` | Adds RISC-V-specific `gentag`, `addtag`, and `settag` paths. |
+| Platform gating | `platform.h` | Allows the standalone allocator to recognize the `SCUDO_ZIMTE` configuration. |
+| Runtime enablement | `memtag.h` | Uses `SCUDO_MTE_ENABLE` and Scudo options to support on/off comparisons. |
+| C/C++ allocator wrappers | `wrappers_c.cpp`, `wrappers_cpp.cpp`, `wrappers_c.inc` | Exposes allocator entry points used when linking applications or benchmarks. |
+| Compatibility work | allocator headers and support files | Keeps the standalone allocator buildable with the project RISC-V GNU toolchain. |
 
-Unlike the standard Scudo allocator (which primarily supports AArch64 MTE), this version introduces specific support for the RISC-V Zimte specification:
+## Build Assumptions
 
-1.  **Architecture Backend (`memtag_zimte.h` / `memtag.h`)**:
-      * Implemented RISC-V specific inline assembly for MTE operations.
-      * **GENTAG**: Generates random tags for pointers.
-      * **SETTAG**: Stores tags into Shadow Memory (associated with the Zimte extension).
-2.  **Runtime Control**:
-      * Added environment variable checks (`SCUDO_MTE_ENABLE`) to dynamically enable/disable MTE logic at runtime, facilitating performance A/B testing.
-3.  **GCC Compatibility**:
-      * Patched headers and source files to ensure compatibility with the RISC-V GCC toolchain (standard Scudo depends heavily on Clang-specific builtins).
+This directory is not a full LLVM monorepo checkout. Treat it as a standalone allocator source tree used by the course project.
 
-## Directory Structure
+Required context:
 
-Key files relevant to the Zimte port:
+- The repository-level RISC-V MTE toolchain has been built.
+- `source ../env.sh` has been run from this directory, or `source env.sh` has been run from the repository root.
+- The compiler accepts `-march=rv64gc_zimte`.
+- The runtime target is QEMU user mode with Zimte CPU properties enabled.
 
-  * **`memtag.h`**: The core MTE abstraction layer. Modified to detect RISC-V architecture (`SCUDO_ZIMTE`) and dispatch calls to Zimte implementation.
-  * **`memtag_zimte.h`**: (Optional) Contains RISC-V specific definitions and inline assembly macros for `gentag`, `settag`, etc.
-  * **`allocator_config.h`**: Configuration definitions defining the allocator layout (Primary/Secondary) suitable for embedded or Linux environments.
-  * **`wrappers_c.cpp`**: Implements the C-style `malloc`/`free` wrappers to replace the system allocator.
+## Important Build Flags
 
-## Build Instructions
-
-This version of Scudo is designed to be built as a **Standalone Library** using `g++` (RISC-V Toolchain).
-
-### 1\. Prerequisites
-
-  * **RISC-V GNU Toolchain**: Support for `rv64gc` or `rv64gc_zimte`.
-  * **QEMU (User Mode)**: Must support `zimte` extension (patched version recommended).
-
-### 2\. Compilation Flags
-
-To compile Scudo with Zimte support, the following flags are mandatory:
+Use the same architecture and configuration flags consistently across Scudo objects and the final program:
 
 ```bash
-# Core Architecture Flags
 -march=rv64gc_zimte
-
-# Scudo Specific Macros
 -DSCUDO_STANDALONE_BUILD=1
 -DSCUDO_ZIMTE=1
 -DSCUDO_CAN_USE_MTE=1
 ```
 
-### 3\. Example Build Script (Static Link)
+Scudo is C++17 code, so build allocator sources with the RISC-V `g++` driver even when the benchmark or application is written in C.
 
-Since Scudo is C++17 and many benchmarks (like CoreMark) are C, a **Separate Compilation** approach is recommended:
+## Example Standalone Build Shape
+
+The exact object list depends on the experiment, but the compile/link pattern is:
 
 ```bash
-# 1. Compile Scudo sources (C++)
+source ../env.sh
+
 riscv64-unknown-linux-gnu-g++ -std=c++17 -O3 -march=rv64gc_zimte \
-    -DSCUDO_STANDALONE_BUILD=1 -DSCUDO_ZIMTE=1 -DSCUDO_CAN_USE_MTE=1 \
-    -I./include -I. \
-    -c checksum.cpp common.cpp flags.cpp ... (all .cpp files)
+  -DSCUDO_STANDALONE_BUILD=1 -DSCUDO_ZIMTE=1 -DSCUDO_CAN_USE_MTE=1 \
+  -I./include -I. \
+  -c common.cpp flags.cpp flags_parser.cpp checksum.cpp report.cpp \
+     string_utils.cpp timing.cpp release.cpp wrappers_c.cpp wrappers_cpp.cpp
 
-# 2. Compile your application (C)
 riscv64-unknown-linux-gnu-gcc -O3 -march=rv64gc_zimte \
-    -c main.c -o main.o
+  -c ../tests/sources/mte_test.c -o mte_test.o
 
-# 3. Link together
 riscv64-unknown-linux-gnu-g++ -march=rv64gc_zimte \
-    *.o main.o -o my_app_scudo \
-    -lpthread -ldl -latomic -lrt
+  *.o mte_test.o -o mte_test_scudo \
+  -lpthread -ldl -latomic -lrt
 ```
 
-## Usage & Configuration
+For benchmark work, keep Scudo objects and benchmark objects in a separate build directory so generated files do not pollute this source tree.
 
-Once compiled, the allocator's behavior can be controlled via environment variables.
+## Runtime Configuration
 
-### Enabling MTE
-
-To enable Memory Tagging checks at runtime:
+Enable the Zimte QEMU model:
 
 ```bash
-# 1. Enable Scudo's internal MTE logic (if modified to check this env var)
-export SCUDO_MTE_ENABLE=1
-
-# 2. Standard Scudo Options (Force MTE on)
-export SCUDO_OPTIONS="UseMte=1"
-
-# 3. Run with QEMU (Ensure Zimte CPU flags are set)
-QEMU_CPU="rv64,zimop=true,ssnpm=true,zimte=true,pmlen=7,ptw=4" \
-./my_app_scudo
+export QEMU_CPU="rv64,zimop=true,ssnpm=true,zimte=true,pmlen=7,ptw=4"
 ```
 
-### Disabling MTE (Baseline Performance)
+Run with Scudo MTE enabled:
 
-To run as a standard allocator without MTE overhead:
+```bash
+SCUDO_MTE_ENABLE=1 \
+SCUDO_OPTIONS="UseMte=1" \
+qemu-riscv64 ./mte_test_scudo
+```
+
+Run a baseline with Scudo MTE disabled:
 
 ```bash
 unset SCUDO_MTE_ENABLE
-export SCUDO_OPTIONS="UseMte=0"
-./my_app_scudo
+SCUDO_OPTIONS="UseMte=0" \
+qemu-riscv64 ./mte_test_scudo
 ```
 
-## Performance Note
+## Engineering Notes
 
-Based on CoreMark benchmarks in QEMU user-mode emulation:
+- Keep Zimte-specific behavior behind `SCUDO_ZIMTE` so upstream Scudo assumptions remain visible.
+- Do not mix glibc heap tagging and Scudo MTE measurements unless the experiment explicitly calls for it.
+- When comparing performance, record the compiler flags, QEMU CPU string, allocator configuration, benchmark iteration count, and host machine details.
+- Treat the current numbers as QEMU user-mode measurements. They are useful for relative project comparisons, not as a hardware performance claim.
 
-  * **MTE Overhead**: \~15-18% compared to Glibc baseline.
-  * **Memory Overhead**: Minimal (\~3-5%) due to hardware tagging efficiency compared to software Redzones (ASan).
+## Current Measurement Context
+
+In the repository-level CoreMark runs, the Scudo MTE configuration measured about 17.63% overhead relative to the glibc non-MTE baseline. See the root README and `../coremark/README.md` for the benchmark framing.
 
 ## References
 
-  * [RISC-V Zimte Specification](https://www.google.com/search?q=https://github.com/riscv/riscv-zimte)
-  * [LLVM Scudo Documentation](https://llvm.org/docs/ScudoHardenedAllocator.html)
+- [LLVM Scudo Hardened Allocator](https://llvm.org/docs/ScudoHardenedAllocator.html)
+- [RISC-V International](https://riscv.org/)
+- [Project whitepaper](../references/RISC-V-MTE-Whitepaper.pdf)

@@ -1,0 +1,21 @@
+# Local build products
+/src/
+/toolchain/
+/logs/
+/env.sh
+
+# Temporary test/build outputs
+*.o
+*.a
+*.so
+*.exe
+run1.log
+run2.log
+run3.log
+
+# Editor and OS noise
+.DS_Store
+**/.DS_Store
+*~
+.vscode/
+.idea/
