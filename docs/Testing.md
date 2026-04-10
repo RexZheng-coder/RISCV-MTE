@@ -45,7 +45,7 @@ The test suite validates the RISC-V cross-compilation toolchain functionality, i
 
 1. **Source the environment**:
    ```bash
-   source ~/RISCV-MTE/env.sh
+   source ~/RISCV-MTE/scripts/setup-environment.sh
    ```
 
 2. **Verify toolchain**:
@@ -436,7 +436,7 @@ ERROR: riscv64-unknown-linux-gnu-gcc not found!
 
 **Solution**:
 ```bash
-source ~/RISCV-MTE/env.sh
+source ~/RISCV-MTE/scripts/setup-environment.sh
 ```
 
 **Verify**:
@@ -545,7 +545,7 @@ file hello
 
 **Expected**:
 ```
-/home/user/RISCV-MTE/toolchain/bin/riscv64-unknown-linux-gnu-gcc
+/opt/riscv/bin/riscv64-unknown-linux-gnu-gcc
 riscv64-unknown-linux-gnu-gcc (GCC) 14.2.0
 hello: ELF 64-bit LSB executable, UCB RISC-V
 ```
@@ -639,3 +639,4 @@ chmod +x ~/RISCV-MTE/scripts/run-all-tests.sh
 ## License
 
 This testing infrastructure is part of the RISC-V MTE Toolchain project.
+

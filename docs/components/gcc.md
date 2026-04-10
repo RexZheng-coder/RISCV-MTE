@@ -6,7 +6,7 @@ GCC Full compiler (Stage 2) with complete C/C++ support, **patched for RISC-V Zi
 
 ## Source Code & Modifications
 
-- **Repository**: [vrull-public/gcc](https://gitlab.com/vrull-public/gcc), `riscv-mte` branch
+- **Repository**: [RexZheng-coder/gcc](https://gitlab.com/RexZheng-coder/gcc)
 - **Modifications**:
   - Added support for the `-march=rv64gc_zimte` architecture string.
   - Enabled code generation compatibility for Zimte extension instructions.
@@ -15,7 +15,7 @@ GCC Full compiler (Stage 2) with complete C/C++ support, **patched for RISC-V Zi
 
 - **Version**: 14.2.0 (Custom Branch)
 - **Build Script**: `scripts/build-gcc-final.sh`
-- **Installation**: `$PREFIX/bin/riscv64-unknown-linux-gnu-gcc` after `source env.sh`
+- **Installation**: `/opt/riscv/bin/riscv64-unknown-linux-gnu-gcc`
 
 To build from source using the provided scripts:
 ```bash
@@ -38,4 +38,5 @@ riscv64-unknown-linux-gnu-gcc -march=rv64gc_zimte -O3 hello.c -o hello
 # Compile C++ with Zimte support
 riscv64-unknown-linux-gnu-g++ -march=rv64gc_zimte -O3 hello.cpp -o hello
 ```
+
 

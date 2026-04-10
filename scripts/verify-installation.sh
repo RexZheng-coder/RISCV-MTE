@@ -307,7 +307,7 @@ if [ $FAILED_TESTS -eq 0 ]; then
     echo "  riscv64-unknown-linux-gnu-gcc -o program program.c"
     echo "  riscv64-unknown-linux-gnu-g++ -o program program.cpp"
     echo ""
-    echo "See docs/README.md for component documentation"
+    echo "See docs/examples/ for more usage examples"
     exit 0
 else
     echo -e "${RED}========================================${NC}"
@@ -316,7 +316,7 @@ else
     echo ""
     echo "Please check the errors above and:"
     echo "  1. Review build logs in logs/"
-    echo "  2. See docs/Installation.md for troubleshooting"
+    echo "  2. See docs/installation.md for troubleshooting"
     echo "  3. Re-run failed stages if needed"
     exit 1
 fi
